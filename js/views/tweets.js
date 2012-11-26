@@ -9,13 +9,16 @@ define(
         this.collection.on('tweets:add', this.onTweetsAdd);
       },
       onTweetsAdd : function() {
-        console.log('tweets added', this.collection.length);
+        console.log(this.collection.length, 'tweets added to collection');
         this.render();
       },
       render      : function() {
         this.$el.empty();
         this.collection.each(function(tweet) {
-          this.$el.append( new TweetView({ model : tweet }).render() );
+          this.$el.append( new TweetView({ 
+            model : tweet,
+            id    : 'tweet-' + tweet.get('id')
+          }).render() );
         }, this);
         return this.$el;
       }

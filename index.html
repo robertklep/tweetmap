@@ -22,25 +22,62 @@
 
       #map-canvas {
         height        : 100%;
-        margin-left   : 300px;
+        margin-left   : 324px;
       }
 
-      #tweet  {
-        font-size : 11pt;
-        position  : fixed;
-        bottom    : 0;
-        width     : 300px;
-        height    : auto;
-        padding   : 0.5em;
-        background: rgba(255, 255, 255, 0.8);
-        font-size : 80%;
-        opacity   : 0;
+      #tweets {
+        position      : absolute;
+        width         : 300px;
+        height        : 100%;
+        overflow      : scroll;
+        margin        : 0 auto;
+        padding       : 0.5em 12px;
+        list-style    : none;
+        background    : white;
+        box-shadow    : inset 0px 8px 48px #ddd;
+      }
+
+      #tweets li {
+        font-size       : 70%;
+        margin          : 0.75em 0;
+        padding         : 0.5em;
+        font-size       : 70%;
+        position        : relative;
+        border-radius   : 6px;
+        box-shadow      : 
+          0px 3px 8px #ccc,
+          inset 0px 2px 3px #ddd,
+          inset 0px 0px 2px black
+        ;
+        background-color: #f7f7f7;
+        background-image: -webkit-gradient(linear, left top, left bottom, from(#f7f7f7), to(#e7e7e7));
+        background-image: -webkit-linear-gradient(top, #f7f7f7, #e7e7e7);
+        background-image: -moz-linear-gradient(top, #f7f7f7, #e7e7e7);
+        background-image: -ms-linear-gradient(top, #f7f7f7, #e7e7e7);
+        background-image: -o-linear-gradient(top, #f7f7f7, #e7e7e7);
+      }
+
+      #tweets li.focussed {
+        box-shadow      : 
+          0px 0px 3px red,
+          inset 0px 2px 3px #ddd,
+          inset 0px 0px 2px black
+        ;
+      }
+
+      #tweets li.focussed:before {
+        position      : absolute;
+        right         : 100%;
+        line-height   : 0;
+        top           : 50%;
+        content       : '\25B6';
+        color         : #888;
       }
     </style>
   </head>
   <body>
     <script type='text/html' id='tweet-template'>
-      T: <%= text %>
+      <%= text %>
     </script>
     <script data-main="js/config" src="js/libs/require.js"></script>
   </body>

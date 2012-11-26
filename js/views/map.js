@@ -42,9 +42,11 @@ define(
             events  : {
               mouseover : function() {
                 this.setIcon('http://www.google.com/intl/en_us/mapfiles/ms/micons/green-dot.png');
+                tweet.trigger('tweet:focus');
               },
               mouseout : function() {
                 this.setIcon('http://www.google.com/intl/en_us/mapfiles/ms/micons/red-dot.png');
+                tweet.trigger('tweet:blur');
               }
             }
           }));
