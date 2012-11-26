@@ -35,35 +35,24 @@ define(
       onTweetsAdd : function() {
         var markers = [];
         this.tweets.each(function(tweet) {
-          // create marker
-          var marker = new google.maps.Marker({
-            position  : new google.maps.LatLng(tweet.get('geo').coordinates[0], tweet.get('geo').coordinates[1]),
-            title     : tweet.get('from_user') + ': ' + tweet.get('text'),
-            //icon      : blueIcon
-          });
-
-          // determine age of marker
+          // set age of tweet
           tweet.set('age', new Date(tweet.get('created_at')).age());
 
-          // setup event handlers
-          /*
-          google.maps.event.addListener(marker, 'mouseover', function() {
-            $tweet.html(
-              template.replace(/{(.*?)}/g, function(match, keyword) {
-                return result[keyword];
-              })
-            ).css('opacity', '1.0');
-          });
-          google.maps.event.addListener(marker, 'mouseout', function() {
-            $tweet.css('opacity', '0.0');
-          });
-          google.maps.event.addListener(marker, 'click', function() {
-            window.open('http://twitter.com/' + result.from_user, '_blank');
-          });
-          */
-
-          markers.push(marker);
-        });
+          // create marker
+          markers.push(this.addMarker({
+            lat     : tweet.get('geo').coordinates[0],
+            lng     : tweet.get('geo').coordinates[1],
+            label   : tweet.get('from_user') + ': ' + tweet.get('text'),
+            events  : {
+              mouseover : function() {
+                this.setIcon('http://www.google.com/intl/en_us/mapfiles/ms/micons/green-dot.png');
+              },
+              mouseout : function() {
+                this.setIcon('http://www.google.com/intl/en_us/mapfiles/ms/micons/red-dot.png');
+              }
+            }
+          }));
+        }, this);
         // remove old markers from clusterer
         this.clusterer.clearMarkers();
         // add new markers to clusterer

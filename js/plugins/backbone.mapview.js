@@ -26,20 +26,33 @@ Backbone.MapView = Backbone.View.extend({
     // get current position and display it on the map
     var this_ = this;
     navigator.geolocation.getCurrentPosition(function(pos) {
-      this_.setMarker(pos.coords.latitude, pos.coords.longitude, opts.label);
+      this_.addMarker(_.extend({
+          lat   : pos.coords.latitude,
+          lng   : pos.coords.longitude
+        }, opts)
+      );
       if (opts.center)
         this_
           .setCenter(pos.coords.latitude, pos.coords.longitude)
           .setZoom(opts.zoom || 15);
     });
   },
-  setMarker   : function(lat, lng, label, opts) {
-    new google.maps.Marker({
-      position  : new google.maps.LatLng(lat, lng),
+  addMarker   : function(opts) {
+    // create marker instance
+    var marker = new google.maps.Marker({
+      position  : opts.position || new google.maps.LatLng(opts.lat, opts.lng),
       map       : this.map,
-      title     : label
+      title     : opts.label,
+      icon      : opts.icon || 'http://www.google.com/intl/en_us/mapfiles/ms/micons/red-dot.png'
     });
-    return this;
+
+    // set event handlers
+    _.each(opts.events || {}, function(handler, event) {
+      google.maps.event.addListener(marker, event, _.bind(handler, marker));
+    });
+
+    // return marker
+    return marker;
   },
   setCenter   : function(lat, lng) {
     this.map.setCenter(new google.maps.LatLng(lat, lng));
