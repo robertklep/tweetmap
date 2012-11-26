@@ -1,0 +1,25 @@
+define(
+  [ 'backbone', 'models/tweet' ],
+  function(Backbone, Tweet) {
+    return Backbone.Collection.extend({
+      model       : Tweet,
+      initialize  : function(opts) {
+        Backbone.Collection.prototype.initialize.call(this, arguments);
+        opts      = opts || {};
+        this.rpp  = opts.rpp || 100;
+      },
+      fetch : function(center, radius) {
+        var geoquery = center + ',' + radius + 'km';
+        this.url = 'http://search.twitter.com/search.json?q=&rpp=' + this.rpp + '&callback=?&geocode=' + geoquery;
+        Backbone.Collection.prototype.fetch.call(this);
+      },
+      parse : function(response) {
+        _.each(response.results, function(result) {
+          if (result.geo)
+            this.add(new Tweet(result), { silent : true });
+        }, this);
+        this.trigger('tweets:add');
+      }
+    });
+  }
+);
