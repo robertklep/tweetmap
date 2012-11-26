@@ -2,22 +2,130 @@
 <html>
   <head>
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
-    <script src="utils.js"></script>
+    <script src="http://maps.googleapis.com/maps/api/js?key=AIzaSyCLo5PViCpeTu8Etf0RzrL87zEVx7DBiU8&sensor=true&libraries=geometry"></script>
+    <script src="js/head.load.min.js"></script>
+    <script>
+      head.js(
+        "js/jquery.min.js",
+        "js/underscore-min.js",
+        "js/backbone-min.js",
+        "js/markerclusterer_packed.js",
+        "js/utils.js",
+        "app/views/mapview.js",
+        function() {
+          var MapView = Backbone.MapView.extend({
+            initialize: function() {
+              Backbone.MapView.prototype.initialize.call(this, arguments);
+
+              // initialize marker clusterer
+              this.clusterer = new MarkerClusterer(this.map, [], {
+                averageCenter : true,
+                maxZoom       : 15
+              });
+
+              // user hasn't yet interacted with map
+              this.interacted = false;
+
+              // throttle events
+              var callback = throttle(this.bbChanged, 1000);
+              this.on('map:zoom_changed', callback);
+              this.on('map:dragend',      callback);
+            },
+            bbChanged : function() {
+              // user interacted with the map
+              this.interacted = true;
+
+              // get map bounds
+              var bounds    = this.map.getBounds();
+
+              // bounds can be null
+              if (! bounds)
+                return;
+
+              // calculate radius (as distance between center and NE corner of bounding box)
+              var center    = bounds.getCenter();
+              var radius    = google.maps.geometry.spherical.computeDistanceBetween(bounds.getNorthEast(), center);
+
+              // limit radius to 20km
+              radius = Math.min(radius / 1000, 20);
+              console.log('looking within a radius of', radius, 'km');
+
+              // setup query to pass to Twitter API
+              var geoquery  = center.toUrlValue() + ',' + radius + 'km';
+
+              // perform Twitter request
+              var this_ = this;
+              $.getJSON('http://search.twitter.com/search.json?q=&rpp=100&callback=?&geocode=' + geoquery, function(response) {
+                // process results
+                var markers = [];
+                response.results.forEach(function(result) {
+                  if (! result.geo)
+                    return;
+
+                  // create marker
+                  var marker = new google.maps.Marker({
+                    position  : new google.maps.LatLng(result.geo.coordinates[0], result.geo.coordinates[1]),
+                    title     : result.from_user + ': ' + result.text,
+                    //icon      : blueIcon
+                  });
+
+                  // determine age of marker
+                  result.age = new Date(result.created_at).age();
+
+                  // setup event handlers
+                  /*
+                  google.maps.event.addListener(marker, 'mouseover', function() {
+                    $tweet.html(
+                      template.replace(/{(.*?)}/g, function(match, keyword) {
+                        return result[keyword];
+                      })
+                    ).css('opacity', '1.0');
+                  });
+                  google.maps.event.addListener(marker, 'mouseout', function() {
+                    $tweet.css('opacity', '0.0');
+                  });
+                  google.maps.event.addListener(marker, 'click', function() {
+                    window.open('http://twitter.com/' + result.from_user, '_blank');
+                  });
+                  */
+
+                  markers.push(marker);
+                });
+                // remove old markers from clusterer
+                this_.clusterer.clearMarkers();
+                // add new markers to clusterer
+                this_.clusterer.addMarkers(markers);
+              });
+            }
+          });
+
+          // render mapview and append it to BODY
+          var mapview = new MapView({ id : 'map_canvas' });
+          mapview.render().appendTo('body');
+
+          // add current location on map
+          mapview.addCurrentLocationMarker({
+            label   : 'Current Location',
+            center  : ! mapview.interacted
+          });
+        }
+      );
+    </script>
     <style type="text/css">
       html {
         height: 100%;
       }
 
-      body { 
+      body {
         height      : 100%;
         margin      : 0;
         padding     : 0;
         font-family : sans-serif;
       }
 
-      #map_canvas { 
-        height  : 100%;
+      #map_canvas {
+        height        : 100%;
+        margin-left   : 300px;
       }
 
       #tweet  {
@@ -32,8 +140,7 @@
         opacity   : 0;
       }
     </style>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCLo5PViCpeTu8Etf0RzrL87zEVx7DBiU8&sensor=true&libraries=geometry"></script>
-    <script src="http://google-maps-utility-library-v3.googlecode.com/svn/trunk/markerclustererplus/src/markerclusterer_packed.js"></script>
+    <!--
     <script>
       $(function() {
         // initialize map
@@ -154,8 +261,10 @@
         });
       });
     </script>
+    -->
   </head>
   <body>
+    <!--
     <div id="map_canvas" style="width:100%; height:100%"></div>
     <div id="tweet">
       <div style="float:left;color:#888">{age}</div>
@@ -163,5 +272,6 @@
       <h4>{from_user_name} <a href="http://twitter.com/{from_user}">@{from_user}</a></h4>
       <p>{text}</p>
     </div>
+    -->
   </body>
 </html>
