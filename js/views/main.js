@@ -1,11 +1,23 @@
 define(
-  [ 'backbone', 'views/tweets', 'views/map' ],
-  function(Backbone, TweetsView, MapView) {
+  [ 'backbone', 'collections/tweets', 'views/tweets', 'views/map' ],
+  function(Backbone, TweetsCollection, TweetsView, MapView) {
     return Backbone.View.extend({
       id          : 'main-view',
       initialize  : function() {
-        // instantiate mapview
-        this.mapview = new MapView({ id : 'map-canvas' });
+        // initialize tweet collection
+        this.tweets = new TweetsCollection();
+
+        // instantiate tweets view
+        this.tweetsview = new TweetsView({ 
+          id          : 'tweets',
+          collection  : this.tweets
+        });
+
+        // instantiate map view
+        this.mapview    = new MapView({ 
+          id          : 'map-canvas',
+          collection  : this.tweets
+        });
 
         // add current location on map
         this.mapview.addCurrentLocationMarker({
@@ -15,14 +27,13 @@ define(
         });
       },
       render  : function() {
-        // clear element
-        this.$el.html();
-
-        // add mapview to current view
-        this.mapview.render().appendTo( this.$el );
-
-        // done
-        return this.$el;
+        return this.$el
+          // clear element
+          .empty()
+          // add tweets (list) view
+          .append( this.tweetsview.render() )
+          // add map view
+          .append( this.mapview.render() );
       }
     });
   }

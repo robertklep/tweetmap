@@ -3,33 +3,6 @@
   <head>
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
     <script src="http://maps.googleapis.com/maps/api/js?key=AIzaSyCLo5PViCpeTu8Etf0RzrL87zEVx7DBiU8&sensor=true&libraries=geometry"></script>
-    <!--
-    <script>
-      window.TweetMap = {};
-      head.js(
-        "js/jquery.min.js",
-        "js/underscore-min.js",
-        "js/backbone-min.js",
-        "js/markerclusterer_packed.js",
-        "js/utils.js",
-        "js/backbone-mapview.js",
-        "app/views/mapview.js",
-        "app/models/tweet.js",
-        "app/models/tweets.js",
-        function() {
-          // render mapview and append it to BODY
-          var mapview = new TweetMap.MapView({ id : 'map_canvas' });
-          mapview.render().appendTo('body');
-
-          // add current location on map
-          mapview.addCurrentLocationMarker({
-            label   : 'Current Location',
-            center  : ! mapview.interacted
-          });
-        }
-      );
-    </script>
-      -->
     <style type="text/css">
       html {
         height: 100%;
@@ -64,139 +37,11 @@
         opacity   : 0;
       }
     </style>
-    <!--
-    <script>
-      $(function() {
-        // initialize map
-        var map = new google.maps.Map(document.getElementById("map_canvas"), {
-          center    : new google.maps.LatLng(52.243333, 5.634167),
-          zoom      : 8,
-          mapTypeId : google.maps.MapTypeId.HYBRID
-        });
-
-        // initialize marker clusterer
-        var clusterer = new MarkerClusterer(map, [], {
-          averageCenter : true,
-          maxZoom       : 15
-        });
-
-        // initialize blue icon
-        var blueIcon = new google.maps.MarkerImage("http://www.google.com/intl/en_us/mapfiles/ms/micons/blue-dot.png");
-
-        // setup events
-        var interacted  = false;
-        var timeout     = null;
-        var markers     = [];
-        var $tweet      = $("#tweet");
-        var template    = $tweet.html();
-        var callback    = function() {
-          interacted    = true;
-          var bounds    = map.getBounds();
-
-          // bounds can be null
-          if (! bounds)
-            return;
-
-          // calculate radius (as distance between center and NE corner of bounding box)
-          var center    = bounds.getCenter();
-          var radius    = google.maps.geometry.spherical.computeDistanceBetween(bounds.getNorthEast(), center);
-
-          // limit radius
-          radius = Math.min(radius / 1000, 20);
-          console.log('looking within a radius of', radius, 'km');
-
-          // setup query to pass to Twitter API
-          var geoquery  = center.toUrlValue() + ',' + radius + 'km';
-
-          // throttle events
-          if (timeout !== null)
-            window.clearTimeout(timeout);
-
-          timeout = window.setTimeout(function() {
-            // perform Twitter request
-            $.getJSON('http://search.twitter.com/search.json?q=&rpp=100&callback=?&geocode=' + geoquery, function(response) {
-              // clear old markers
-              /*
-              for (var i in markers)
-                markers[i].setMap(null);
-              markers.length = 0;
-              */
-              // process results
-              var markers = [];
-              response.results.forEach(function(result) {
-                if (! result.geo)
-                  return;
-
-                // create marker
-                var marker = new google.maps.Marker({
-                  //map       : map,
-                  position  : new google.maps.LatLng(result.geo.coordinates[0], result.geo.coordinates[1]),
-                  title     : result.from_user + ': ' + result.text,
-                  icon      : blueIcon
-                });
-
-                // determine age of marker
-                result.age = new Date(result.created_at).age();
-
-                // setup event handlers
-                google.maps.event.addListener(marker, 'mouseover', function() {
-                  $tweet.html(
-                    template.replace(/{(.*?)}/g, function(match, keyword) {
-                      return result[keyword];
-                    })
-                  ).css('opacity', '1.0');
-                });
-                google.maps.event.addListener(marker, 'mouseout', function() {
-                  $tweet.css('opacity', '0.0');
-                });
-                google.maps.event.addListener(marker, 'click', function() {
-                  window.open('http://twitter.com/' + result.from_user, '_blank');
-                });
-
-                markers.push(marker);
-              });
-              // remove old markers from clusterer
-              clusterer.clearMarkers();
-              // add new markers to clusterer
-              clusterer.addMarkers(markers);
-            });
-          }, 500);
-        };
-        google.maps.event.addListener(map, 'dragend', callback);
-        google.maps.event.addListener(map, 'zoom_changed', callback);
-
-        // get current position and display it on the map
-        navigator.geolocation.getCurrentPosition(function(pos) {
-          var latlng = new google.maps.LatLng(
-            pos.coords.latitude,
-            pos.coords.longitude
-          );
-          new google.maps.Marker({
-            position  : latlng,
-            map       : map,
-            title     : 'Current position'
-          });
-          // if user hasn't yet interacted with map, zoom in to current location
-          if (! interacted)
-          {
-            map.setCenter(latlng);
-            map.setZoom(12);
-          }
-        });
-      });
-    </script>
-    -->
   </head>
   <body>
-    <!--
-    <div id="map_canvas" style="width:100%; height:100%"></div>
-    <div id="tweet">
-      <div style="float:left;color:#888">{age}</div>
-      <img style="float:right;width:48px" src="{profile_image_url}">
-      <h4>{from_user_name} <a href="http://twitter.com/{from_user}">@{from_user}</a></h4>
-      <p>{text}</p>
-    </div>
-    -->
+    <script type='text/html' id='tweet-template'>
+      T: <%= text %>
+    </script>
     <script data-main="js/config" src="js/libs/require.js"></script>
   </body>
 </html>
