@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <script src="http://maps.googleapis.com/maps/api/js?key=AIzaSyCLo5PViCpeTu8Etf0RzrL87zEVx7DBiU8&sensor=true&libraries=geometry"></script>
+    <link rel="stylesheet" href="css/style.css">
+  </head>
+  <body>
+    <script type='text/html' id='tweet-template'>
+      <div class='user'><a href="http://twitter.com/<%= from_user %>">@<%= from_user %></a></div>
+      <div class='name'><%= from_user_name %></div>
+      <div class='age'><a href="http://twitter.com/<%= from_user %>/status/<%= id_str %>"><%= age %></a></div>
+      <div style='clear:both'>
+        <img src="<%= profile_image_url %>">
+        <p><%= text %></p>
+      </div>
+      <div style='clear:both'></div>
+    </script>
+    <script data-main="js/config" src="js/libs/require.js"></script>
+  </body>
+</html>
