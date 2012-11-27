@@ -3,7 +3,6 @@ define(
     'backbone',
     'markerclusterer',
     'plugins/backbone.mapview',
-    'libs/throttle',
     'libs/utils'
   ],
   function(Backbone) {
@@ -23,8 +22,8 @@ define(
         // user hasn't yet interacted with map
         this.interacted = false;
 
-        // throttle events
-        var callback = throttle(this.bbChanged, 1000);
+        // debounce bounding-box-change-events
+        var callback = _.debounce(this.bbChanged, 1000);
         this.on('map:zoom_changed', callback);
         this.on('map:dragend',      callback);
       },
