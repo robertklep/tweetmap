@@ -9,7 +9,6 @@ define(
         this.collection.on('tweets:add', this.onTweetsAdd);
       },
       onTweetsAdd : function() {
-        console.log(this.collection.length, 'tweets added to collection');
         this.render();
       },
       render      : function() {

@@ -14,10 +14,7 @@ define(
         Backbone.Collection.prototype.fetch.call(this);
       },
       parse : function(response) {
-        var i = 0;
         _.each(response.results, function(result) {
-          if (i++ == 0)
-            console.log('result', result);
           if (result.geo)
             this.add(new Tweet(result), { silent : true });
         }, this);
