@@ -31,25 +31,27 @@ define(
       onTweetsAdd : function() {
         var markers = [];
         this.collection.each(function(tweet) {
-          // set age of tweet
-          tweet.set('age', new Date(tweet.get('created_at')).age());
-
           // create marker
-          markers.push(this.addMarker({
+          var marker = this.addMarker({
             lat     : tweet.get('geo').coordinates[0],
             lng     : tweet.get('geo').coordinates[1],
             label   : tweet.get('from_user') + ': ' + tweet.get('text'),
             events  : {
-              mouseover : function() {
-                this.setIcon('http://www.google.com/intl/en_us/mapfiles/ms/micons/green-dot.png');
-                tweet.trigger('tweet:focus');
-              },
-              mouseout : function() {
-                this.setIcon('http://www.google.com/intl/en_us/mapfiles/ms/micons/red-dot.png');
-                tweet.trigger('tweet:blur');
-              }
+              mouseover : function() { tweet.trigger('tweet:focus') },
+              mouseout  : function() { tweet.trigger('tweet:blur') }
             }
-          }));
+          });
+
+          // listen to focus/blur events
+          tweet.on('tweet:focus', function() {
+            marker.setIcon('http://www.google.com/intl/en_us/mapfiles/ms/micons/green-dot.png');
+          });
+          tweet.on('tweet:blur', function() {
+            marker.setIcon('http://www.google.com/intl/en_us/mapfiles/ms/micons/red-dot.png');
+          });
+
+          // push marker on list
+          markers.push(marker);
         }, this);
         // remove old markers from clusterer
         this.clusterer.clearMarkers();

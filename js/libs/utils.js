@@ -21,9 +21,10 @@ Date.prototype.AGE_TABLE = [
   [ 4294967295, 'year'    , 'years'   ]
 ];
 
-Date.prototype.age = function(humanized) {
+Date.prototype.age = function(opts) {
+  opts = opts || {};
   // shortcuts
-  if (humanized)
+  if (opts.humanized)
   {
     var today     = new Date().setHours(0, 0, 0, 0);
     var tomorrow  = new Date(new Date(today).setHours(26, 0, 0, 0)).setHours(0, 0, 0, 0);
@@ -61,6 +62,12 @@ Date.prototype.age = function(humanized) {
     }
     divider = secs;
   };
+
+  if (opts.reverse)
+    future = ! future;
+
+  if (opts.short)
+    return (future ? '' : '-') + parseInt(seconds) + suffix[0];
 
   return (future ? 'in ' : '') + parseInt(seconds) + ' ' + suffix + (future ? '' : ' ago');
 };
